@@ -3,7 +3,8 @@
 (in-package #:shell)
 
 (defun run (has-output &rest cmd-parts)
-  (let* ((cmd (uiop/launch-program:escape-sh-command cmd-parts)))
+  (let* ((parts (mapcar #'convert-to-string cmd-parts))
+         (cmd (uiop/launch-program:escape-sh-command parts)))
     (format t "~&shell$ ~A" cmd)
     (let* ((shell-output
              (with-output-to-string (s)
@@ -13,3 +14,9 @@
                s))
            (lines (uiop/utility:split-string shell-output :separator '(#\Newline))))
       (remove "" lines :test #'string=))))
+
+(defun convert-to-string (var)
+  (handler-case (or (check-type var string) var)
+    (error (_)
+      (declare (ignore _))
+      (format nil "~a" var))))
