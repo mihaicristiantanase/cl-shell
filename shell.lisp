@@ -8,12 +8,13 @@
   (let* ((parts (mapcar #'convert-to-string cmd-parts))
          (cmd (uiop/launch-program:escape-sh-command parts)))
     (format t "~&shell$ ~A" cmd)
-    (let* ((shell-output
-             (with-output-to-string (s)
-               (sb-ext:run-program "/bin/bash" (list "-c" cmd)
-                                   :input input
-                                   :output (when has-output s))
-               s))
+    (let* ((out (if (eq has-output t) (make-string-output-stream) has-output))
+           (shell-output
+             (progn (sb-ext:run-program "/bin/bash" (list "-c" cmd)
+                                  :input input
+                                  :output out)
+                    ;; TODO(mihai): detect type of stream
+                    (if (eq (type-of out) 'stream) (get-output-stream-string out))))
            (lines (uiop/utility:split-string shell-output :separator '(#\Newline))))
       (remove "" lines :test #'string=))))
 
