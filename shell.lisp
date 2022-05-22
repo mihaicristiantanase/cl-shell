@@ -12,9 +12,9 @@
            (shell-output
              (progn (sb-ext:run-program "/bin/bash" (list "-c" cmd)
                                   :input input
-                                  :output out)
-                    ;; TODO(mihai): detect type of stream
-                    (if (eq (type-of out) 'stream) (get-output-stream-string out))))
+                                  :output out
+                                  :if-output-exists :supersede)
+                    (if (is-stream out) (get-output-stream-string out))))
            (lines (uiop/utility:split-string shell-output :separator '(#\Newline))))
       (remove "" lines :test #'string=))))
 
@@ -30,9 +30,3 @@
 
 (defun run-in-out (has-output input &rest cmd-parts)
   (apply #'run-general has-output input cmd-parts))
-
-(defun convert-to-string (var)
-  (handler-case (or (check-type var string) var)
-    (error (_)
-      (declare (ignore _))
-      (format nil "~a" var))))
