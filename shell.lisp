@@ -26,9 +26,8 @@
 (defun run (output &rest cmd-parts)
   (apply #'run-out output cmd-parts))
 
-;; TODO(mihai): pass the parameter here
-(defun run-out (&rest cmd-parts)
-  (apply #'run-general t nil cmd-parts))
+(defun run-out (output &rest cmd-parts)
+  (apply #'run-general output nil cmd-parts))
 
 (defun run-in (input &rest cmd-parts)
   (apply #'run-general nil input cmd-parts))
